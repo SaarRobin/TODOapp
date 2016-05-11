@@ -1,0 +1,9 @@
+.idea
+vendor
+tmp/*
+composer.lock
+build.properties
+build.tar
+tests/logs
+tests/report
+public/bower_components
