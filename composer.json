@@ -1,0 +1,39 @@
+{
+  "name": "TODO application",
+  "description": "",
+  "minimum-stability": "stable",
+  "license": "",
+  "authors": [
+    {
+      "name": "Robin Saar",
+      "email": "robin.saar@erply.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@git.nimi24.com:backend-plugins/plugin-sdk.git"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^4.7"
+  },
+  "require": {
+    "erply/pluginsdk": "0.37.0-p",
+    "logentries/logentries-monolog-handler": "dev-master",
+    "monolog/monolog": "^1.19"
+  },
+
+
+  "require": {
+    "monolog/monolog": "^1.19"
+  },
+
+
+
+  "autoload": {
+    "psr-4": {
+      "TODO\\": "library/TODO"
+    }
+  }
+}

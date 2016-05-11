@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Author: Lauri Orgla <lauri.orgla@erply.com> -->
+<!-- Author: Artur Luik <artur.luik@erply.com> -->
+<project name="sdk" default="build">
+    <property file="./build.properties"/>
+    <!-- ============================================  -->
+    <!-- Target: prepare                               -->
+    <!-- ============================================  -->
+    <target name="prepare">
+        <echo msg="Composer update.."/>
+        <exec command="./composer.phar update"/>
+        <echo msg="Composer dumping autoload map."/>
+        <exec command="./composer.phar dump-autoload -o"/>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: Deploy-bluehost                       -->
+    <!-- ============================================  -->
+    <target name="deploy-bluehost">
+
+        <echo msg="WARNING! This script will upload and overwrite all plugin files."/>
+        <scp username="${server.user}" password="${server.password}"
+             host="${server.address}"
+             todir="/home/${server.user}/plugins/${plugin.name}"
+             file="build.tar"/>
+        <ssh username="${server.user}" password="${server.password}"
+             host="${server.address}"
+             command="
+                cd plugins/${plugin.name} &amp;&amp;
+                tar -xvf build.tar > /dev/null &amp;&amp;
+                /bin/cp -rf build/* . &amp;&amp;
+                rm -rf build &amp;&amp;
+                rm -f build.tar &amp;&amp;
+                ln -s /home/${server.user}/plugins/${plugin.name}/public ../../www/${plugin.name}
+                "/>
+        <echo msg="Deploy completed: https://${server.address}/${plugin.name}"/>
+
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: Build                                 -->
+    <!-- ============================================  -->
+    <target name="build" depends="clean">
+        <echo msg="Building project..."/>
+        <exec command="./composer.phar install --no-dev"/>
+        <echo msg="Composer dumping autoload map."/>
+        <exec command="./composer.phar dump-autoload -o"/>
+        <copy todir="build">
+            <fileset defaultexcludes="false" expandsymboliclinks="true" dir=".">
+                <include name="**/*.php"/>
+                <include name="**/*.js"/>
+                <include name="**/*.png"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.html"/>
+                <include name="**/*.css"/>
+                <exclude name="vendor/erply/pluginsdk/tests/**/*"/>
+            </fileset>
+        </copy>
+        <tar destfile="build.tar">
+            <fileset dir=".">
+                <include name="build/*"/>
+            </fileset>
+        </tar>
+        <delete dir="build" includeemptydirs="true" verbose="true"/>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: clear                                 -->
+    <!-- ============================================  -->
+    <target name="clean">
+        <echo msg="Clearing project files"/>
+        <delete dir="vendor" includeemptydirs="true" verbose="true"/>
+        <delete dir="tmp" includeemptydirs="true" verbose="true"/>
+        <delete file="composer.lock"/>
+        <delete dir="tests/logs"/>
+        <delete dir="tests/report"/>
+        <delete file="build.tar"/>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: Test                               -->
+    <!-- ============================================  -->
+    <target name="test" depends="prepare">
+        <!-- Testing taget-->
+        <phpunit bootstrap="tests/bootstrap.php">
+            <formatter type="plain" usefile="false"/>
+            <batchtest>
+                <fileset dir="tests">
+                    <include name="**/*Test.php"/>
+                </fileset>
+            </batchtest>
+        </phpunit>
+    </target>
+</project>
