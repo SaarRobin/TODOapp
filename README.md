@@ -1,2 +1,0 @@
-# TODOapp
-A school poject
