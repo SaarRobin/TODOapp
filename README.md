@@ -9,6 +9,7 @@ It is used for collecting dummy data.
 ## Setup
 
  - git clone  <`*repository name*`>
+ - bower install
  - set up database (see below for details)
  - set database credentials on <`config/configuration.php`>
  - go to localhost/ <`app name`> /public/index/index
